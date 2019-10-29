@@ -1,0 +1,250 @@
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+        }
+        div:first-child {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: #ff00ff;
+        }
+    </style>
+    <script>
+        const attributes = 'clicksnake'.split('');
+        let mode = 'intro';
+        const divs = [];
+
+        const gameWidth = 15;
+        const gameHeight = 13;
+        let snake = [];
+        let map = {};
+        let direction = 0;
+
+        function wait(milliseconds) {
+            return new Promise((resolve, reject) => {
+                setTimeout(resolve, milliseconds);
+            });
+        }
+
+        function calculateDistance(xa, ya, xb, yb) {
+            let a = xa - xb;
+            let b = ya - yb;
+
+            return Math.sqrt(a*a + b*b);
+        }
+
+        async function startGame() {
+            mode = 'setup';
+            const midY = Math.floor(gameHeight / 2);
+            snake = [];
+            direction = 0;
+
+            do {
+                let div = divs.pop();
+                await wait(50);
+                div.parentElement.removeChild(div);
+            }
+            while (divs.length > 1);
+
+            divs[0].removeAttribute(attributes[0]);
+            mode = 'game';
+
+            while (divs.length < gameHeight) {
+                await wait(50);
+                div = document.createElement('div');
+                document.body.appendChild(div);
+                divs.push(div);
+            }
+
+            for (let x = 0; x < gameWidth; x ++) {
+                for (let y = 0; y < gameHeight; y ++) {
+                    map[x+','+y] = 0;
+                }
+            }
+
+            for (let i = 0; i < 4; i ++) {
+                map[i+','+midY] = 1;
+                snake.unshift({x: i, y: midY});
+            }
+
+            addApple();
+        }
+
+        function addApple() {
+            let x;
+            let y;
+
+            do {
+                x = Math.floor(Math.random() * gameWidth);
+                y = Math.floor(Math.random() * gameHeight);
+            }
+            while (map[x+','+y] == 1);
+
+            map[x+','+y] = 2;
+        }
+
+        function gameMove() {
+            const head = snake[0];
+            if (!head) {
+                return;
+            }
+
+            const newHead = {x: head.x, y: head.y};
+
+            if (direction == 0) {
+                newHead.x ++;
+            }
+            else if (direction == 1) {
+                newHead.y ++;
+            }
+            else if (direction == 2) {
+                newHead.x --;
+            }
+            else if (direction == 3) {
+                newHead.y --;
+            }
+
+            if (newHead.x < 0) {
+                newHead.x = gameWidth - 1;
+            }
+            else if (newHead.x > gameWidth - 1) {
+                newHead.x = 0;
+            }
+            if (newHead.y < 0) {
+                newHead.y = gameHeight - 1;
+            }
+            else if (newHead.y > gameWidth - 1) {
+                newHead.y = 0;
+            }
+
+            const oldTile = map[newHead.x+','+newHead.y];
+
+            snake.unshift(newHead);
+            map[newHead.x+','+newHead.y] = 1;
+
+            if (oldTile == 2) {
+                addApple();
+            }
+            else if (oldTile == 1) {
+                mode = 'gameover';
+            }
+            else {
+                const oldTail = snake.pop();
+                map[oldTail.x+','+oldTail.y] = 0;
+            }
+        }
+
+        function renderGame() {
+            divs.forEach((div, y) => {
+                let line = '';
+
+                for (let x = 0; x < gameWidth; x ++) {
+                    const tile = map[x+','+y];
+
+                    if (tile == 1) {
+                        line += '🐍';
+                    }
+                    else if (tile == 2) {
+                        line += '🍎';
+                    }
+                    else {
+                        line += '⬜';
+                    }
+                }
+
+                if (frame % 2) {
+                    line += ' ';
+                }
+                else {
+                    line += '⠀';
+                }
+
+                div.setAttribute('s', line);
+            });
+        }
+
+        function renderGameover() {
+            const b = Math.floor(Date.now()/1000) % 2;
+
+            if (b) {
+                renderGame();
+            }
+            else {
+                const midY = Math.floor(gameHeight / 2);
+
+                divs.forEach((div, y) => {
+                    div.setAttribute('s', ' GAME OVER GAME OVER GAME OVER ');
+                });
+            }
+        }
+
+        function renderIntro() {
+            let i = Math.floor(Math.sin(Date.now()/700) * (divs.length/2) + (divs.length/2));
+
+            divs.forEach((div, y) => {
+                if (y == i) {
+                    div.setAttribute(attributes[y], ' . OKAY now CLICK the SNAKE! . ');
+                }
+                else {
+                    div.setAttribute(attributes[y], ' . . . . . . . . . . . . . . . ');
+                }
+            });
+        }
+
+        let frame = 0;
+        function loop() {
+            setTimeout(loop, 1000/30);
+
+            if (mode == 'intro') {
+                renderIntro();
+            }
+            else if (mode == 'game') {
+                if (!(frame % 5)) {
+                    gameMove();
+                }
+
+                renderGame();
+            }
+            else if (mode == 'gameover') {
+                renderGameover();
+            }
+
+            frame ++;
+        }
+
+        function keydown(event) {
+            const key = event.which;
+
+            if (key == 39) {
+                direction = 0;
+            }
+            else if (key == 40) {
+                direction = 1;
+            }
+            else if (key == 37) {
+                direction = 2;
+            }
+            else if (key == 38) {
+                direction = 3;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            for (let i = 0; i < 10; i ++) {
+                const div = document.createElement('div');
+                document.body.appendChild(div);
+                divs.push(div);
+            }
+
+            window.addEventListener('keydown', keydown);
+
+            const snakeElement = divs[0];
+            snakeElement.addEventListener('click', startGame);
+
+            loop();
+        });
+    </script>
+</head>
