@@ -23,6 +23,7 @@
         let snake = [];
         let map = {};
         let direction;
+        let newDirection;
         let score;
         let highScore = 0;
 
@@ -48,6 +49,7 @@
             const midY = Math.floor(gameHeight / 2);
             snake = [];
             direction = 0;
+            newDirection = null;
             score = 0;
 
             try {
@@ -110,6 +112,23 @@
             }
 
             const newHead = {x: head.x, y: head.y};
+
+            if (newDirection != null) {
+                if (newDirection == 0 && direction != 2) {
+                    direction = 0;
+                }
+                else if (newDirection == 1 && direction != 3) {
+                    direction = 1;
+                }
+                else if (newDirection == 2 && direction != 0) {
+                    direction = 2;
+                }
+                else if (newDirection == 3 && direction != 1) {
+                    direction = 3;
+                }
+
+                newDirection = null;
+            }
 
             if (direction == 0) { // right
                 newHead.x ++;
@@ -271,17 +290,17 @@
         function keydown(event) {
             const key = event.which;
 
-            if (key == 39 && direction != 2) { // right
-                direction = 0;
+            if (key == 39) { // right
+                newDirection = 0;
             }
-            else if (key == 40 && direction != 3) { // down
-                direction = 1;
+            else if (key == 40) { // down
+                newDirection = 1;
             }
-            else if (key == 37 && direction != 0) { // left
-                direction = 2;
+            else if (key == 37) { // left
+                newDirection = 2;
             }
-            else if (key == 38 && direction != 1) { // up
-                direction = 3;
+            else if (key == 38) { // up
+                newDirection = 3;
             }
         }
 
