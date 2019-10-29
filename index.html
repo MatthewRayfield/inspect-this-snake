@@ -15,7 +15,8 @@
     <script>
         const gameWidth = 15;
         const gameHeight = 13;
-        const attributes = 'clicksnake'.split('');
+        const introAttributeNames = 'clicksnake'.split('');
+        const gameAttributeNames = 'playsnakegame'.split('');
 
         const divs = [];
         let mode = 'intro';
@@ -65,7 +66,7 @@
             }
             while (divs.length > 1);
 
-            divs[0].removeAttribute(attributes[0]);
+            divs[0].removeAttribute(introAttributeNames[0]);
             mode = 'game';
 
             while (divs.length < gameHeight+1) {
@@ -198,7 +199,7 @@
                     line += '⠀';
                 }
 
-                div.setAttribute('s', line);
+                div.setAttribute(gameAttributeNames[y], line);
             });
 
             flipFlop = !flipFlop;
@@ -225,7 +226,7 @@
 
                     for (let y = 0; y < gameHeight; y ++) {
                         let div = divs[y+1];
-                        div.setAttribute('s', ' GAME OVER GAME OVER GAME OVER ');
+                        div.setAttribute(gameAttributeNames[y], ' GAME OVER GAME OVER GAME OVER ');
                     }
                 }
                 else {
@@ -239,10 +240,10 @@
 
             divs.forEach((div, y) => {
                 if (y == i) {
-                    div.setAttribute(attributes[y], ' . OKAY now CLICK the SNAKE! . ');
+                    div.setAttribute(introAttributeNames[y], ' . OKAY now CLICK the SNAKE! . ');
                 }
                 else {
-                    div.setAttribute(attributes[y], ' . . . . . . . . . . . . . . . ');
+                    div.setAttribute(introAttributeNames[y], ' . . . . . . . . . . . . . . . ');
                 }
             });
         }
