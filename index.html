@@ -13,18 +13,21 @@
         }
     </style>
     <script>
-        const attributes = 'clicksnake'.split('');
-        let mode = 'intro';
-        const divs = [];
-
         const gameWidth = 15;
         const gameHeight = 13;
+        const attributes = 'clicksnake'.split('');
 
+        const divs = [];
+        let mode = 'intro';
         let snake = [];
         let map = {};
         let direction;
         let score;
         let highScore = 0;
+
+        let lastMove = Date.now();
+        let gameOverTime;
+        let flipFlop = 0;
 
         function wait(milliseconds) {
             return new Promise((resolve, reject) => {
@@ -151,6 +154,7 @@
                 addApple();
             }
             else if (oldTile == 1) {
+                gameOverTime = Date.now();
                 mode = 'gameover';
             }
             else {
@@ -179,12 +183,15 @@
                     else if (tile == 2) {
                         line += '🍎';
                     }
+                    else if (tile == 3) {
+                        line += '💥';
+                    }
                     else {
                         line += '⬜';
                     }
                 }
 
-                if (frame % 2) {
+                if (flipFlop) {
                     line += ' ';
                 }
                 else {
@@ -193,20 +200,36 @@
 
                 div.setAttribute('s', line);
             });
+
+            flipFlop = !flipFlop;
         }
 
         function renderGameover() {
-            const b = Math.floor(Date.now()/1000) % 2;
+            const n = Math.floor((Date.now() - gameOverTime) / 100);
 
-            if (b) {
-                renderGame();
+            if (n < snake.length) {
+                const a = Math.floor(Date.now()/50) % 2;
+
+                if (a) {
+                    const segment = snake[n];
+                    map[segment.x+','+segment.y] = 3;
+
+                    renderGame();
+                }
             }
             else {
-                const midY = Math.floor(gameHeight / 2);
+                const b = Math.floor(Date.now()/1000) % 2;
 
-                for (let y = 0; y < gameHeight; y ++) {
-                    let div = divs[y+1];
-                    div.setAttribute('s', ' GAME OVER GAME OVER GAME OVER ');
+                if (b) {
+                    const midY = Math.floor(gameHeight / 2);
+
+                    for (let y = 0; y < gameHeight; y ++) {
+                        let div = divs[y+1];
+                        div.setAttribute('s', ' GAME OVER GAME OVER GAME OVER ');
+                    }
+                }
+                else {
+                    renderGame();
                 }
             }
         }
@@ -224,15 +247,16 @@
             });
         }
 
-        let frame = 0;
         function loop() {
-            setTimeout(loop, 1000/30);
+            setTimeout(loop, 1000/60);
 
             if (mode == 'intro') {
                 renderIntro();
             }
             else if (mode == 'game') {
-                if (!(frame % 5)) {
+                const now = Date.now();
+                if (now - lastMove > 100) {
+                    lastMove = now;
                     gameMove();
                 }
 
@@ -241,8 +265,6 @@
             else if (mode == 'gameover') {
                 renderGameover();
             }
-
-            frame ++;
         }
 
         function keydown(event) {
