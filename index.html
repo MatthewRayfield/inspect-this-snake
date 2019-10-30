@@ -350,7 +350,10 @@
             window.addEventListener('keydown', keydown);
 
             const snakeElement = divs[0];
-            snakeElement.addEventListener('click', startGame);
+            window.addEventListener('blur', () => {
+                document.getElementsByTagName('style')[0].innerHTML += 'div:first-of-type {cursor: pointer;}';
+                snakeElement.addEventListener('click', startGame);
+            });
 
             loop();
         });
