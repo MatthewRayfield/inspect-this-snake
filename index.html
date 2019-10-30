@@ -1,5 +1,6 @@
 <head>
     <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
     <style>
         body {
             color: #3500ff;
@@ -7,6 +8,8 @@
             overflow: hidden;
             margin: 0px;
             margin-top: 8px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 16px;
         }
         h1 {
             font-size: 30px;
@@ -20,13 +23,26 @@
         }
         div:first-of-type {
             display: inline-block;
-            margin-left: -25px;
+            margin-left: -20px;
             width: 150px;
             height: 170px;
             background-image: url('snake.gif');
             background-position: center;
             background-repeat: no-repeat;
             background-size: 150px;
+        }
+        footer {
+            position: absolute;
+            bottom: 5;
+            right: 5;
+            text-align: right;
+        }
+        footer span {
+            display: inline-block;
+            padding: 1px;
+        }
+        a {
+            color: #3500ff;
         }
     </style>
     <script>
@@ -348,4 +364,10 @@
     <!---->
     <h1>Inspect This Snake</h1>
     <h2>( you know.. with right click )</h2>
+    <footer>
+        <span>yet</span><br />
+        <span>another</span><br />
+        <span>web thing from</span><br />
+        <span><a href="https://matthewrayfield.com">matthew rayfield world</a></span>
+    </footer>
 </body>
